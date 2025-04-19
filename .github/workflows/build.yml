@@ -12,10 +12,17 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Install Java and utilities
+      - name: Install system dependencies
         run: |
           sudo apt update -y
-          sudo apt install -y openjdk-11-jdk wget unzip
+          # installer les dépendances requises, y compris une alternative à libtinfo5
+          sudo apt install -y \
+            openjdk-11-jdk \
+            wget \
+            unzip \
+            libstdc++6 \
+            libncurses6 \
+            libtinfo-dev
 
       - name: Install Android command‑line tools
         run: |
@@ -23,17 +30,14 @@ jobs:
           mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
           wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cli.zip
           unzip cli.zip -d $ANDROID_SDK_ROOT/cmdline-tools
-          # Le zip crée un dossier 'cmdline-tools', on le déplace en 'latest'
           mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
-          # Exporte les variables d'environnement pour les étapes suivantes
           echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
           echo "PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_ENV
 
-      - name: Accept Android SDK licenses & install platforms/build-tools
+      - name: Accept Android SDK licenses & install SDK components
         run: |
           sdkmanager --sdk_root=$ANDROID_SDK_ROOT --update
           sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "build-tools;30.0.3" "platforms;android-30"
-          # Accepter toutes les licences Android (ignore la sortie pour éviter Broken pipe)
           yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses || true
 
       - name: Set up Python
