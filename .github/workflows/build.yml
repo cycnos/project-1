@@ -18,7 +18,11 @@ jobs:
       - name: Install required APT packages
         run: |
           sudo apt update
-          sudo apt install -y unzip libtinfo6 libstdc++6
+          sudo apt install -y wget unzip libstdc++6
+          # Télécharger et installer libtinfo5 manuellement
+          wget -qO - https://archive.ubuntu.com/ubuntu/pool/main/n/ncurses/libtinfo5_5.9+20140913-1build1_amd64.deb -O libtinfo5.deb
+          sudo dpkg -i libtinfo5.deb
+          sudo apt install -f
 
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
