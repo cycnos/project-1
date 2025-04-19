@@ -7,15 +7,43 @@ on:
 jobs:
   build:
     runs-on: ubuntu-22.04
+
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Java (Android SDK)
+        run: |
+          sudo apt update -y
+          sudo apt install -y openjdk-11-jdk
+          sudo apt install -y unzip wget
+
+      - name: Install Android SDK Build Tools
+        run: |
+          # Télécharger et extraire Android SDK Build Tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip
+          unzip commandlinetools-linux-6609375_latest.zip -d $HOME/android-sdk
+          # Accepter les licences de SDK Android
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
+          # Installer les outils nécessaires
+          $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platform-tools" "build-tools;30.0.3" "platforms;android-30"
+          echo "$HOME/android-sdk" >> $GITHUB_PATH
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.11
+
+      - name: Install dependencies
+        run: |
+          sudo apt install -y libncurses5 libstdc++6 libtinfo6
+
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
         with:
           python-version: 3.11
           buildozer-cmd: buildozer -v android debug
 
-      - name: Upload artifacts
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: package
