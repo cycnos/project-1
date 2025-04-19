@@ -7,7 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -19,7 +18,7 @@ jobs:
       - name: Install required APT packages
         run: |
           sudo apt update
-          sudo apt install -y unzip libncurses6 libstdc++6 libtinfo-dev
+          sudo apt install -y unzip libtinfo6 libstdc++6
 
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
@@ -27,8 +26,8 @@ jobs:
           python-version: 3.8
           buildozer-cmd: buildozer -v android debug
 
-      - name: Upload artifacts
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: package
+          name: app-debug
           path: ./bin/*.apk
