@@ -1,5 +1,3 @@
-name: Build APK
-
 on:
   push:
     branches: [ main ]
@@ -7,34 +5,16 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: 3.8
-
-      - name: Install required APT packages
-        run: |
-          sudo apt update
-          sudo apt install -y unzip libncurses6 libstdc++6
-
-      - name: Install AIDL manually
-        run: |
-          wget https://dl.google.com/android/repository/build-tools_r33.0.0-linux.zip  # Mise à jour avec une version plus récente
-          unzip build-tools_r33.0.0-linux.zip -d $HOME/android-build-tools
-          echo "$HOME/android-build-tools/build-tools/33.0.0" >> $GITHUB_PATH  # Mise à jour du chemin
-
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
         with:
           python-version: 3.8
           buildozer-cmd: buildozer -v android debug
 
-      - name: Upload APK artifact
+      - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: app-debug
+          name: package
           path: ./bin/*.apk
