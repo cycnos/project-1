@@ -19,12 +19,15 @@ jobs:
 
       - name: Install Android SDK Build Tools
         run: |
-          # Télécharger et extraire Android SDK Build Tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip
-          unzip commandlinetools-linux-6609375_latest.zip -d $HOME/android-sdk
-          # Accepter les licences de SDK Android
-          $HOME/android-sdk/cmdline-tools/bin/sdkmanager --update
-          $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platform-tools" "build-tools;30.0.3" "platforms;android-30"
+          # Télécharger et extraire Android SDK Command-line tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip -O commandlinetools.zip
+          mkdir -p $HOME/android-sdk/cmdline-tools
+          unzip commandlinetools.zip -d $HOME/android-sdk/cmdline-tools
+          
+          # Mettre à jour SDK et installer les outils nécessaires
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --update
+          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platform-tools" "build-tools;30.0.3" "platforms;android-30"
+          
           echo "$HOME/android-sdk" >> $GITHUB_PATH
 
       - name: Set up Python
