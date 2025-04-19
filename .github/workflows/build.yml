@@ -23,9 +23,9 @@ jobs:
 
       - name: Install AIDL manually
         run: |
-          wget https://dl.google.com/android/repository/build-tools_r34.0.0-linux.zip
-          unzip build-tools_r34.0.0-linux.zip -d $HOME/android-build-tools
-          echo "$HOME/android-build-tools/android-34.0.0" >> $GITHUB_PATH
+          wget https://dl.google.com/android/repository/build-tools_r33.0.0-linux.zip  # Mise à jour avec une version plus récente
+          unzip build-tools_r33.0.0-linux.zip -d $HOME/android-build-tools
+          echo "$HOME/android-build-tools/build-tools/33.0.0" >> $GITHUB_PATH  # Mise à jour du chemin
 
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
