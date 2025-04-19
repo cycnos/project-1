@@ -23,8 +23,7 @@ jobs:
           wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip
           unzip commandlinetools-linux-6609375_latest.zip -d $HOME/android-sdk
           # Accepter les licences de SDK Android
-          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
-          # Installer les outils nécessaires
+          $HOME/android-sdk/cmdline-tools/bin/sdkmanager --update
           $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platform-tools" "build-tools;30.0.3" "platforms;android-30"
           echo "$HOME/android-sdk" >> $GITHUB_PATH
 
