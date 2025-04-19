@@ -19,7 +19,7 @@ jobs:
       - name: Install required APT packages
         run: |
           sudo apt update
-          sudo apt install -y unzip libncurses5 libstdc++6
+          sudo apt install -y unzip libncurses6 libstdc++6
 
       - name: Install AIDL manually
         run: |
