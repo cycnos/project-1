@@ -1,13 +1,31 @@
+name: Build APK
+
 on:
   push:
     branches: [ main ]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: 3.8
+
+      - name: Install required APT packages
+        run: |
+          sudo apt update
+          sudo apt install -y unzip libncurses5 libstdc++6
+
+      - name: Install AIDL manually
+        run: |
+          wget https://dl.google.com/android/repository/build-tools_r34.0.0-linux.zip
+          unzip build-tools_r34.0.0-linux.zip -d $HOME/android-build-tools
+          echo "$HOME/android-build-tools/android-34.0.0" >> $GITHUB_PATH
 
       - name: Build APK
         uses: digreatbrian/buildozer-action@v2
@@ -15,8 +33,8 @@ jobs:
           python-version: 3.8
           buildozer-cmd: buildozer -v android debug
 
-      - name: Upload artifacts
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: package
+          name: app-debug
           path: ./bin/*.apk
