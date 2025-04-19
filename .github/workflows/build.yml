@@ -6,40 +6,42 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-      - name: Set up Java (Android SDK)
+      - name: Install Java and utilities
         run: |
           sudo apt update -y
-          sudo apt install -y openjdk-11-jdk
-          sudo apt install -y unzip wget
+          sudo apt install -y openjdk-11-jdk wget unzip
 
-      - name: Install Android SDK Build Tools
+      - name: Install Android command‑line tools
         run: |
-          # Télécharger et extraire Android SDK Command-line tools
-          wget https://dl.google.com/android/repository/commandlinetools-linux-6609375_latest.zip -O commandlinetools.zip
-          mkdir -p $HOME/android-sdk/cmdline-tools
-          unzip commandlinetools.zip -d $HOME/android-sdk/cmdline-tools
-          
-          # Mettre à jour SDK et installer les outils nécessaires
-          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --update
-          yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platform-tools" "build-tools;30.0.3" "platforms;android-30"
-          
-          echo "$HOME/android-sdk" >> $GITHUB_PATH
+          export ANDROID_SDK_ROOT=$HOME/android-sdk
+          mkdir -p $ANDROID_SDK_ROOT/cmdline-tools
+          wget https://dl.google.com/android/repository/commandlinetools-linux-9477386_latest.zip -O cli.zip
+          unzip cli.zip -d $ANDROID_SDK_ROOT/cmdline-tools
+          # Le zip crée un dossier 'cmdline-tools', on le déplace en 'latest'
+          mv $ANDROID_SDK_ROOT/cmdline-tools/cmdline-tools $ANDROID_SDK_ROOT/cmdline-tools/latest
+          # Exporte les variables d'environnement pour les étapes suivantes
+          echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT" >> $GITHUB_ENV
+          echo "PATH=$PATH:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools" >> $GITHUB_ENV
+
+      - name: Accept Android SDK licenses & install platforms/build-tools
+        run: |
+          sdkmanager --sdk_root=$ANDROID_SDK_ROOT --update
+          sdkmanager --sdk_root=$ANDROID_SDK_ROOT "platform-tools" "build-tools;30.0.3" "platforms;android-30"
+          # Accepter toutes les licences Android (ignore la sortie pour éviter Broken pipe)
+          yes | sdkmanager --sdk_root=$ANDROID_SDK_ROOT --licenses || true
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: 3.11
 
-      - name: Install dependencies
-        run: |
-          sudo apt install -y libncurses5 libstdc++6 libtinfo6
-
-      - name: Build APK
+      - name: Build APK with Buildozer
         uses: digreatbrian/buildozer-action@v2
         with:
           python-version: 3.11
@@ -48,5 +50,5 @@ jobs:
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
-          name: package
+          name: app-debug
           path: ./bin/*.apk
